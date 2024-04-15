@@ -1130,8 +1130,6 @@ udisks_linux_drive_object_housekeeping (UDisksLinuxDriveObject  *object,
 
       /* Wake-up only on start-up */
       nowakeup = TRUE;
-      if (secs_since_last == 0)
-        nowakeup = FALSE;
 
       udisks_info ("Refreshing SMART data on %s (nowakeup=%d)",
                    g_dbus_object_get_object_path (G_DBUS_OBJECT (object)),

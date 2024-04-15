@@ -1126,14 +1126,6 @@ handle_block_uevent_for_drive (UDisksLinuxProvider *provider,
                                                                 G_DBUS_OBJECT_SKELETON (object));
                   g_hash_table_insert (provider->vpd_to_drive, g_strdup (vpd), object);
                   g_hash_table_insert (provider->sysfs_path_to_drive, g_strdup (sysfs_path), object);
-
-                  /* schedule initial housekeeping for the drive unless coldplugging */
-                  if (!provider->coldplug)
-                    {
-                      task = g_task_new (object, NULL, NULL, NULL);
-                      g_task_run_in_thread (task, perform_initial_housekeeping_for_drive);
-                      g_object_unref (task);
-                    }
                 }
             }
           else
@@ -1555,21 +1547,7 @@ housekeeping_thread_func (GTask           *task,
 static gboolean
 on_housekeeping_timeout (gpointer user_data)
 {
-  UDisksLinuxProvider *provider = UDISKS_LINUX_PROVIDER (user_data);
-  GTask *task;
-
-  G_LOCK (provider_lock);
-  if (provider->housekeeping_running)
-    goto out;
-  provider->housekeeping_running = TRUE;
-  task = g_task_new (provider, NULL, NULL, NULL);
-  g_task_run_in_thread (task, housekeeping_thread_func);
-  g_object_unref (task);
-
- out:
-  G_UNLOCK (provider_lock);
-
-  return TRUE; /* keep timeout around */
+  return TRUE; /* housekeeping removed */
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
